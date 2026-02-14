@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>💖 Valentine</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins:wght@300;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+    font-family:'Poppins',sans-serif;
+    background:linear-gradient(135deg,#ffdbe5,#ffeef3);
+    height:100vh;
+    overflow:hidden;
+}
+.screen{
+    display:none;
+    width:100%;
+    height:100%;
+    padding:25px;
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+    text-align:center;
+}
+.active{display:flex;}
+
+h1{
+    font-family:'Pacifico',cursive;
+    color:#e63950;
+    margin-bottom:12px;
+}
+p{color:#555;max-width:340px;margin-bottom:18px;}
+
+button{
+    background:#ff4d6d;
+    color:white;
+    border:none;
+    padding:12px 26px;
+    border-radius:30px;
+    font-size:16px;
+    margin:8px;
+    cursor:pointer;
+    transition:.3s;
+}
+button:hover{transform:scale(1.1);}
+
+/* calendar */
+.calendar{
+    position:absolute;
+    top:20px;
+    right:20px;
+    background:white;
+    border-radius:18px;
+    padding:10px 18px;
+    box-shadow:0 8px 20px rgba(0,0,0,.15);
+}
+.calendar small{color:#ff4d6d;}
+.calendar .day{
+    font-size:38px;
+    color:#e63950;
+    font-weight:bold;
+}
+
+/* hearts */
+.heart{
+    position:absolute;
+    font-size:20px;
+    animation:fall linear forwards;
+}
+@keyframes fall{
+    from{transform:translateY(-10vh);opacity:1;}
+    to{transform:translateY(110vh);opacity:0;}
+}
+
+/* gifts */
+.gifts{display:flex;gap:15px;flex-wrap:wrap;justify-content:center;}
+.gift{
+    width:120px;height:85px;
+    background:#ff8fab;
+    border-radius:20px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:white;
+    font-weight:500;
+    cursor:pointer;
+    transition:.3s;
+}
+.gift:hover{transform:scale(1.1);}
+
+/* bubble */
+.bubble{
+    background:white;
+    border-radius:22px;
+    padding:20px;
+    box-shadow:0 10px 25px rgba(0,0,0,.15);
+    max-width:360px;
+}
+
+/* animations */
+.bouquet{font-size:110px;animation:bloom 1.5s;}
+@keyframes bloom{from{transform:scale(0);}to{transform:scale(1);} }
+
+.ring{font-size:90px;animation:ring 1.5s infinite alternate;}
+@keyframes ring{from{transform:scale(1);}to{transform:scale(1.15);} }
+
+/* letter */
+.letter{
+    background:#fffafc;
+    border-radius:20px;
+    padding:25px;
+    box-shadow:0 10px 25px rgba(0,0,0,.15);
+    max-width:380px;
+    font-family:'Pacifico',cursive;
+    color:#d6336c;
+    font-size:1.3rem;
+    line-height:1.6;
+}
+
+/* gift2 full screen images */
+#gift2Images{
+    display:flex; 
+    width:100%; 
+    height:100%; 
+    justify-content:center; 
+    align-items:center; 
+    flex-wrap:wrap; 
+    overflow:hidden;
+    background:linear-gradient(135deg,#ffeef3,#ffdbe5);
+    padding:15px;
+    border-radius:25px;
+}
+
+.valImgFull{
+    width:40%;
+    max-width:400px;
+    height:auto;
+    border:5px solid #ff4d6d;
+    border-radius:25px;
+    box-shadow:0 15px 35px rgba(0,0,0,0.4);
+    margin:10px;
+    transition: transform 0.4s;
+    animation: floatFull 5s ease-in-out infinite alternate;
+}
+
+.valImgFull:hover{
+    transform:scale(1.15) translateY(-10px);
+}
+
+@media(max-width:480px){
+    .valImgFull{width:90%;}
+}
+
+</style>
+</head>
+
+<body>
+
+<audio id="bgMusic" loop>
+    <source src="https://www.bensound.com/bensound-music/bensound-love.mp3">
+</audio>
+
+<!-- PAGE 1 -->
+<div class="screen active" id="p1">
+    <div class="calendar">
+        <small>FEB</small>
+        <div class="day">14</div> ❤️
+    </div>
+
+    <h1 id="name"></h1>
+    <p>
+        Чи минь ёстой мундаг бас хөөрхөн шүү 
+        Хайртай шүү...
+    </p>
+
+    <button onclick="yes()">Чи миний Valentine болох уу? 💖</button>
+    <button onclick="yes()">Эсвэл үгүй юу? </button>
+</div>
+
+<!-- PAGE 2 -->
+<div class="screen" id="p2">
+    <h1>Аз жаргал эхэллээ ✨</h1>
+    <p>Эдгээр жижигхэн бэлгүүд чинийх 💕</p>
+
+    <div class="gifts">
+        <div class="gift" onclick="gift(1)">🌹 Gift 1</div>
+        <div class="gift" onclick="gift(2)">📸 Gift 2</div>
+        <div class="gift" onclick="gift(3)">💍 Gift 3</div>
+    </div>
+    <button onclick="back('p1')">🔙 Back</button>
+</div>
+
+<!-- PAGE 3 : GIFT DISPLAY -->
+<div class="screen" id="p3">
+    <div class="bubble" id="giftContent" style="padding:0; background:none; box-shadow:none; display:flex; flex-direction:column; justify-content:center; align-items:center; width:100%; height:100%;">
+        <div id="icon"></div>
+        <h1 id="title"></h1>
+        <p id="text" style="text-align:center;"></p>
+
+        <!-- Gift 2 зургууд -->
+        <div id="gift2Images">
+            <img src="https://i.imgur.com/svpdB7M.jpeg" class="valImgFull">
+            <img src="https://i.imgur.com/SvHV2mf.jpeg" class="valImgFull">
+            <img src="https://i.imgur.com/hJYtFL4.jpeg" class="valImgFull">
+            <img src="https://i.imgur.com/sXvixoi.jpeg" class="valImgFull">
+            <img src="https://i.imgur.com/OPzGIzW.jpeg" class="valImgFull">
+            <img src="https://i.imgur.com/LJHf0NU.jpeg" class="valImgFull">
+            <img src="https://i.imgur.com/z8kSfmw.jpeg" class="valImgFull">
+        </div>
+
+        <!-- Gift 3 code -->
+        <div id="codeSection" style="display:none;margin-top:10px;">
+            <h2>Code оруулна уу:</h2>
+            <input type="text" id="codeInput" placeholder="Энд код оруулна">
+            <button onclick="checkCode()">Оруулах</button>
+        </div>
+    </div>
+    <button onclick="back('p2')">🔙 Back</button>
+</div>
+
+<!-- PAGE 4 : LETTER -->
+<div class="screen" id="p4">
+    <div class="letter" id="letterText"></div>
+    <button onclick="goQR()">Next 💖</button>
+    <button onclick="back('p3')">🔙 Back</button>
+</div>
+
+<!-- PAGE 5 : QR -->
+<div class="screen" id="p5">
+    <h1>Just for you 💖</h1>
+    <p>Энэ QR-г скан хийвэл миний зүрх чинийх…</p>
+    <div id="qrcode"></div>
+    <button onclick="back('p4')">🔙 Back</button>
+</div>
+
+<script>
+const girlName="💖 WILL YOU BE MY VALENTINE???? 💖"; 
+let i=0;
+function typeName(){if(i<girlName.length){document.getElementById("name").innerHTML+=girlName.charAt(i);i++;setTimeout(typeName,120);} }
+typeName();
+
+function show(a,b){document.getElementById(a).classList.remove("active");document.getElementById(b).classList.add("active");}
+
+function yes(){
+    show("p1","p2");
+    confetti({particleCount:180,spread:80});
+    hearts();
+    document.getElementById("bgMusic").play();
+    document.body.style.background = "linear-gradient(135deg,#ff9aa2,#ffdde1)";
+}
+
+function gift(n){
+    show("p2","p3");
+
+    const icon = document.getElementById("icon");
+    const title = document.getElementById("title");
+    const text = document.getElementById("text");
+    const gift2Images = document.getElementById("gift2Images");
+    const codeSection = document.getElementById("codeSection");
+
+    // Эхлээд бүгдийг нуух
+    icon.style.display="block";
+    gift2Images.style.display="none";
+    codeSection.style.display="none";
+    icon.className=""; icon.innerText="";
+    document.getElementById("letterText").innerHTML="";
+
+    if(n==1){
+        icon.className="bouquet"; icon.innerText="🌹💐🌸";
+        title.innerText="Май зөндөө их цэцэг";
+        text.innerText="Чи миний амьдралын гэрэл гэгээ минь шүүүүү.";
+    }
+
+    if(n==2){
+        icon.innerText="📸";
+        title.innerText="Дурсамж";
+        text.innerText="Хөөрхөн хайрынхаа инээмсэглэлийг энд хадгалъя 💕";
+        gift2Images.style.display="flex";
+    }
+
+    if(n==3){
+        icon.className="ring"; icon.innerText="💍";
+        title.innerText="Үүрд хамт байя, Надтай үерхээч хөөрхөнөө😅😎, зөвшөөрж байвал кодоо хийгээд ор😝 ";
+        text.innerText="Надтай хамт бүх өдрийг Valentine болгож өнгөрүүлээч ❤️";
+        confetti({particleCount:250,spread:100});
+        codeSection.style.display="block"; // Code input
+    }
+}
+
+function checkCode(){
+    const code = document.getElementById("codeInput").value;
+    if(code==="0214"){
+        document.getElementById("codeSection").style.display="none"; 
+        show("p3","p4"); // letter page руу шилжүүлнэ
+        typeLetter();
+        // QR руу автоматаар шилжүүлэхгүй, Next button л ажиллана
+    } else { 
+        alert("Код буруу байна 💔"); 
+    }
+}
+
+const letter = `Хайрт минь,
+
+Чамтай учирснаас хойш  
+миний ертөнц илүү дулаахан,  
+илүү гэрэлтэй болсон.
+
+Энэ зүрх зөвхөн чинийх.  
+Өнөөдөр, маргааш, үргэлж… ❤️`;
+
+let li=0;
+function typeLetter(){
+    const el=document.getElementById("letterText");
+    el.innerHTML="";
+    li=0;
+    function typing(){if(li<letter.length){el.innerHTML+=letter.charAt(li);li++;setTimeout(typing,60);} }
+    typing();
+}
+
+function goQR(){
+    show("p4","p5");
+    document.getElementById("qrcode").innerHTML="";
+    new QRCode(document.getElementById("qrcode"),window.location.href);
+}
+
+function hearts(){
+    setInterval(()=>{
+        const h=document.createElement("div");
+        h.className="heart";
+        h.innerText=["❤️","💖","💗"][Math.floor(Math.random()*3)];
+        h.style.left=Math.random()*100+"vw";
+        h.style.animationDuration=(3+Math.random()*3)+"s";
+        document.body.appendChild(h);
+        setTimeout(()=>h.remove(),6000);
+    },260);
+}
+
+function back(pageId){
+    document.querySelectorAll(".screen").forEach(p=>p.classList.remove("active"));
+    document.getElementById(pageId).classList.add("active");
+}
+</script>
+
+</body>
+</html>
